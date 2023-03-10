@@ -2,6 +2,9 @@ const express = require('express')
 const dotenv = require('dotenv')
 const connectDB = require('./db/connect')
 const expressAsync = require('express-async-errors');
+const cookieParser = require('cookie-parser')
+const fs = require('fs');
+const path = require('path');
 
 
 const app = express()
@@ -14,11 +17,29 @@ const authRoutes = require('./routes/authRoutes')
 //middleware
 const errorMiddleware = require('./middleware/errorMiddleware')
 const pageNotFound = require('./middleware/pageNotFound')
+const authMiddleware = require('./middleware/auth')
 
+const multer = require('multer');
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads')
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.fieldname + '-' + Date.now())
+    }
+});
+ 
+const upload = multer({ storage: storage });
 
 app.use(express.json())
+app.use(cookieParser())
 app.use('/api/auth',authRoutes)
-app.use('/api/posts',postsRoutes)
+app.use('/api/posts', authMiddleware,upload.single('image'),postsRoutes)
+
+
+ 
+
 
 app.get('/', (req,res)=>{
     res.send('Welcome')

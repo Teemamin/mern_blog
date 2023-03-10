@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 const { Schema } = mongoose;
 const bcrypt = require('bcryptjs');
+const  jwt = require('jsonwebtoken');
 
 const UserSchema = new Schema({
     name: {
@@ -36,8 +37,18 @@ const UserSchema = new Schema({
 })
 
 UserSchema.pre('save',async function(){
+    if(!this.isModified('password')) return //only run this function if the password is part of the modified doc
     const salt = await bcrypt.genSalt(10)
     this.password = await  bcrypt.hash(this.password,salt)
 })
+
+UserSchema.methods.comparePassword = async function (providedPassword){
+    const isMatch = await bcrypt.compare(providedPassword,this.password)
+    return isMatch
+}
+
+UserSchema.methods.createJWT =  function (){
+    return jwt.sign({userId: this._id }, process.env.JWT_SECRET,{expiresIn: process.env.JWT_LIFETIME});
+}
 
 module.exports = mongoose.model('User', UserSchema)
