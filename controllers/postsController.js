@@ -7,24 +7,34 @@ const path = require('path');
 
 
 exports.getAllPosts = async (req,res,next)=>{
-    const posts = await Post.find().lean()
+    let postsQuery =  Post.find().lean()
+    const page = Number(req.query.page) || 1
+    const limit = Number(req.query.limit) || 4
+    const skip = (page - 1) * limit
+    postsQuery= postsQuery.skip(skip).limit(limit)
+    const posts = await postsQuery
     const transformedPosts = []
     for(const post of posts) {
-     //posts.forEach(async post=>{
-        if(post.comments.length > 0){
-        //    let commentDocs = []
-           let commentDocs = await  Comment.find({_id: {$in: post.comments}})
-        //    for(const cm of post.comments) {
-            //post.comments.forEach(async cm=>{
-        //         const cmnt = await Comment.findById({_id:cm})
-        //         commentDocs.push({ body: cmnt?.body, user: cmnt?.user}) 
-        //    }
 
-        transformedPosts.push({...post,comments:commentDocs})
+        if(post.comments.length > 0){
+        //    let commentDocs = await  Comment.find({_id: {$in: post.comments}})
+        const numberOfComments = await Comment.aggregate([
+            { "$match" : { "_id": { "$in": post.comments } } },
+            {
+                $count: "no_of_comments"
+              }
+          ])
+           let commentsQuery=   Comment.find({_id: {$in: post.comments}}) // this can potentially be added to the aggregation for optimization
+           commentsQuery= commentsQuery.limit(4)
+           let commentDocs = await commentsQuery
+            transformedPosts.push({...post,comments:commentDocs, noOfComments: numberOfComments[0].no_of_comments})
         }else {
             transformedPosts.push(post)
         }
     }
+    const totalPosts = await Post.countDocuments({});
+    const numOfPages = Math.ceil(totalPosts / limit); // can use this to display page btn in the frontend
+    
     res.status(StatusCodes.OK).json(transformedPosts)
 }
 
@@ -35,10 +45,7 @@ exports.addPost = async (req,res,next)=>{
         throw new BadRequestError('Please provide all values')
     }
     const userId = req.user.userId
-    const post = await Post.create({title,content,status,createdBy:userId,  img: {
-        data: fs.readFileSync(path.join(__dirname , '..','uploads' , req.file.filename)),
-        contentType: 'image/png'
-    }})
+    const post = await Post.create({title,content,status,createdBy:userId,  })
 
     res.status(StatusCodes.CREATED).json(post)
 }
@@ -62,4 +69,15 @@ exports.commentPost = async (req,res,next)=>{
 exports.deletePost = async (req,res,next)=>{
     res.send('delete view')
     
+}
+
+exports.getComments = async (req,res,next)=>{
+    const postId = req.params.postId
+    const page = Number(req.query.page) || 1
+    const limit = Number(req.query.limit) || 4
+    const skip = page * limit
+    let commentsQuery = Comment.find({post:postId})
+    commentsQuery = commentsQuery.skip(skip).limit(limit)
+    const comments = await commentsQuery
+    res.status(StatusCodes.OK).json(comments)
 }
