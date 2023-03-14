@@ -2,8 +2,7 @@ const Post = require('../model/post')
 const Comment = require('../model/comment')
 const BadRequestError = require('../errors/badRequest')
 const {StatusCodes} = require('http-status-codes')
-const fs = require('fs');
-const path = require('path');
+const checkPermissions = require('../util/checkPermissions')
 
 
 exports.getAllPosts = async (req,res,next)=>{
@@ -40,34 +39,61 @@ exports.getAllPosts = async (req,res,next)=>{
 
 exports.addPost = async (req,res,next)=>{
     const {title,content,status} = req.body
-    console.log(__dirname)
+
     if(!title || !content || !status){
         throw new BadRequestError('Please provide all values')
     }
     const userId = req.user.userId
-    const post = await Post.create({title,content,status,createdBy:userId,  })
+    console.log(req.file)
+    const post = await Post.create({title,content,status,createdBy:userId,imagePath: req.file.path  })
 
     res.status(StatusCodes.CREATED).json(post)
 }
 
 exports.editPost = async (req,res,next)=>{
-    res.send('edit view')  
+    const postId = req.params.id
+    const {title,content,status} = req.body
+
+    if(!title || !content || !status){
+        throw new BadRequestError('Please provide all values')
+    }
+    const post = await Post.findById({_id: postId})
+    if(!post){
+        throw new BadRequestError(`No post with ${postId} found`)
+    }
+    checkPermissions(req.user,post.createdBy)
+    const updatedPost = await Post.findOneAndUpdate({_id: postId},req.body,{new:true,runValidators: true})
+
+    res.status(StatusCodes.OK).json(updatedPost) //asked tega, do you need to generate JWT for responses to ensure longer validity
 }
 exports.commentPost = async (req,res,next)=>{
-    const postId = req.params.id
+    const postId = req.params.commentId
     const {body} = req.body
     if(!body){
-        throw new BadRequestError('Comment body must not be empty')
+        throw new BadRequestError('Please provide comment content')
     }
+    const post = await Post.findById({_id:postId})
+    if(!post){
+        throw new BadRequestError(`No post with ${postId} found, sorry comment cannot be added`)
+    }
+
     const comment = await Comment.create({body,post:postId,user: req.user.userId})
-    const post = await Post.findOne({_id:postId})
     post.comments.push(comment)
     await post.save()
     res.status(StatusCodes.CREATED).json({post,comment}) //will fix this later to redirect to the post page
 }
 
 exports.deletePost = async (req,res,next)=>{
-    res.send('delete view')
+    const postId = req.params.id
+    const post = await Post.findOne({_id: postId})
+    if(!post){
+        throw new BadRequestError(`No post with ${postId} found`)
+    }
+    checkPermissions(req.user,post.createdBy)
+    await Comment.deleteMany({post:postId})
+    await post.deleteOne()
+   
+    res.status(StatusCodes.OK).json({msg: 'Successfully Deleted Post'})
     
 }
 
@@ -80,4 +106,36 @@ exports.getComments = async (req,res,next)=>{
     commentsQuery = commentsQuery.skip(skip).limit(limit)
     const comments = await commentsQuery
     res.status(StatusCodes.OK).json(comments)
+}
+
+exports.editComment = async (req,res,next)=>{
+    const commentId = req.params.commentId
+    const {body} = req.body
+    if(!body){
+        throw new BadRequestError('Please provide the comment body')
+    }
+
+   const comment = await Comment.findById({_id: commentId})
+   if(!comment){
+        throw new BadRequestError(`No comment with the id ${commentId} found`)
+    }
+  
+   checkPermissions(req.user,comment.user)
+   comment.body = body
+   await comment.save()
+    res.status(StatusCodes.OK).json(comment)
+}
+
+exports.deleteComment = async (req,res,next)=>{
+    const commentId = req.params.commentId
+
+   const comment = await Comment.findById({_id: commentId})
+   if(!comment){
+        throw new BadRequestError(`No comment with the id ${commentId} found`)
+    }
+  
+   checkPermissions(req.user,comment.user)
+  
+   await comment.deleteOne()
+    res.status(StatusCodes.OK).json({msg: 'Comment successfully deleted!'})
 }

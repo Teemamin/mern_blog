@@ -33,11 +33,7 @@ const PostSchema = new Schema({
         ref: 'User',
         required: [true, 'Please provide user'],
       },
-      img:
-    {
-        data: Buffer,
-        contentType: String
-    }
+      imagePath: {type: String},
     },
     { timestamps: true }
 
