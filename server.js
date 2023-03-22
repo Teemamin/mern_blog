@@ -18,7 +18,7 @@ const authRoutes = require('./routes/authRoutes')
 //middleware
 const errorMiddleware = require('./middleware/errorMiddleware')
 const pageNotFound = require('./middleware/pageNotFound')
-const authMiddleware = require('./middleware/auth')
+
 
 // const multer = require('multer');
 
@@ -35,14 +35,17 @@ const authMiddleware = require('./middleware/auth')
 
 app.use(express.json())
 app.use(cookieParser())
+app.get('/api',(req,res)=>{
+    res.json({msg: 'hello from express'})
+})
 app.use('/api/auth',authRoutes)
-app.use('/api/posts', authMiddleware,postsRoutes)
+app.use('/api/posts', postsRoutes)
 
 
  
 
 
-app.get('/', (req,res)=>{
+app.get('/api', (req,res)=>{
     res.send('Welcome')
 })
 

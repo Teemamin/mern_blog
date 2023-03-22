@@ -37,6 +37,28 @@ exports.getAllPosts = async (req,res,next)=>{
     res.status(StatusCodes.OK).json(transformedPosts)
 }
 
+exports.getPost = async (req,res,next)=>{
+    const postId = req.params.postId
+    if(!postId){
+        throw new BadRequestError('Post Id Must not be empty')
+    }
+    const post = await Post.findById({_id:postId})
+    if(!post){
+        throw new BadRequestError('Post not Found')
+    }
+    const numberOfComments = await Comment.aggregate([
+        { "$match" : { "_id": { "$in": post.comments } } },
+        {
+            $count: "no_of_comments"
+          }
+      ])
+    const commentQuery = Comment.find({_id: {$in: post.comments}})
+    const commentDocs = await commentQuery.limit(4)
+    post.comments = commentDocs
+    res.status(StatusCodes.OK).json({post, numberOfComments})
+
+}
+
 exports.addPost = async (req,res,next)=>{
     const {title,content,status} = req.body
 
