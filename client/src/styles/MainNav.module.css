@@ -10,38 +10,74 @@
   .list {
     display: flex;
     gap: 1rem;
+    padding: 20px;
   }
   
   .list a {
     text-decoration: none;
-    color: var(--color-primary-400);
+    color: #ffffff;
+    font-size: 1.5em;
   }
   .navbar-brand{
     text-decoration: none;
-    color: var(--color-primary-400);
+    color: #ffffff;
   }
   .navbar-brand:focus, .navbar-brand:hover {
-    color: var(--color-primary-800);
+    color: rgb(235,0,0)
 }
 .navbar-nav .nav-link.active, .navbar-nav .show>.nav-link{
-    color: var(--color-primary-800);
+    color: rgb(235,0,0);
 }
   
   .list a:hover,
   .list a.active {
-    color: var(--color-primary-800);
+    color: rgb(235,0,0);
   }
 
   .searchBtn {
     font: inherit;
-    background-color: var(--color-primary-800);
+    background-color: rgb(235,0,0);
     padding: 0.25rem 0.75rem;
-    border-radius: 2;
+    border-radius: 7px;
     border: none;
   }
   
   
   .searchBtn:hover {
-    background-color: var(--color-primary-300);
+    background-color: #bf0a1b;
     color: var(--color-gray-800);
   }
+
+  .searchBtnLight {
+    font: inherit;
+    background-color: #e2717d;
+    padding: 0.25rem 0.75rem;
+    border-radius: 7px;
+    border: none;
+  }
+  
+  
+  .searchBtnLight:hover {
+    background-color: #e2717d;
+    color: var(--color-gray-800);
+  }
+  .navbar-toggler{
+    color: white;
+    background-color: whitesmoke;
+  }
+
+  .modeBtn{
+    color: white;
+    margin: 7px;
+    padding: auto;
+  }
+
+  .logoutBtn{
+    font-size: 1.5em;
+    background: transparent;
+    border: none;
+    color: white;
+}
+.logoutBtn:hover{
+  color: rgb(235,0,0);
+}

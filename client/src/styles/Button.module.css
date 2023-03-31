@@ -1,13 +1,29 @@
 .Btn {
     font: inherit;
-    background-color: var(--color-primary-800);
+    background-color: rgb(235,0,0);
+    color:white;
     padding: 0.25rem 0.75rem;
-    border-radius: 2;
+    border-radius: 7px;
     border: none;
   }
   
   
   .Btn:hover {
-    background-color: var(--color-primary-300);
-    color: var(--color-gray-800);
+    background-color:#bf0a1b;
+    color: #d2bdbd
+  }
+
+  .BtnLight {
+    font: inherit;
+    background-color: #e2717d;
+    color:white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 7px;
+    border: none;
+  }
+  
+  
+  .BtnLight:hover {
+    background-color: rgb(235,0,0);
+    color: #ffffff;
   }

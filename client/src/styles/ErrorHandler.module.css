@@ -34,3 +34,10 @@
   text-decoration: underline;
   text-transform: capitalize;
 }
+
+
+.error{
+  color: red;
+  font-weight: bold;
+  text-decoration: underline;
+}

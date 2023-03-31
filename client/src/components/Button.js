@@ -1,8 +1,10 @@
 import classes from '../styles/Button.module.css'
+import { useAppContext } from '../context/appContext';
 
-const Button = ({btnText}) => {
+const Button = ({btnText,type,disabled}) => {
+  const {theme} = useAppContext()
   return (
-    <button className={classes.Btn}>{btnText}</button>
+    <button type={type} className={theme === 'light' ? classes.BtnLight : classes.Btn} disabled={disabled}>{btnText}</button>
   )
 }
 

@@ -16,3 +16,15 @@
   .submitbtn a:hover {
     background-color: var(--color-gray-800);
   }
+
+  .authLight{
+    margin: 0;
+    color: #EF0693;
+    font-weight: bold;
+  }
+
+  .auth{
+    margin: 0;
+    color: rgb(235,0,0);
+    font-weight: bold;
+  }

@@ -1,0 +1,14 @@
+.errorDark{
+    color: yellow;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.errorLight{
+    color: red;
+    font-weight: bold;
+    text-decoration: underline;
+}
+.postHeading{
+    margin-bottom: 1.5rem;
+}

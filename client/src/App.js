@@ -1,14 +1,14 @@
-
 import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
 import SharedLayout from './pages/SharedLayout';
-import {AllPosts,AddPost,EditPost,Login,PostDetail,Profile,Register} from './pages'
-import { AuthAction } from "./components/AuthForm";
+import {AllPosts,AddPost,EditPost,Login,PostDetail,Profile} from './pages'
+import { authAction } from "./components/AuthForm";
 import ErrorPage from "./components/ErrorHandler";
 import { allPostsLoader } from "./components/PostsContainer";
 import {loader as postDetailLoader} from './pages/PostDetail'
+import { action as addPostAction } from "./components/PostForm";
 import { useAppContext } from "./context/appContext";
 
 
@@ -25,7 +25,7 @@ function App() {
         {
           index: true,
           element: <AllPosts/>,
-          loader: allPostsLoader
+          loader: allPostsLoader(appContext)
         },
         {
           path: ':id',
@@ -43,7 +43,8 @@ function App() {
         },
         {
             path: 'add-post',
-            element: <AddPost/>
+            element: <AddPost/>,
+            action: addPostAction(appContext)
         },
          {
         path: 'profile',
@@ -52,12 +53,8 @@ function App() {
         {
         path: 'login',
         element: <Login/>,
-        action: AuthAction(appContext)
+        action: authAction(appContext)
       },
-    {
-      path: 'register',
-      element: <Register/>
-    },
       ]
     },
    

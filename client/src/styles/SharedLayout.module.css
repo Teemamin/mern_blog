@@ -1,3 +1,9 @@
 .Main{
-    padding-top: 81px
+    padding-top: 81px;
+}
+
+@media only screen and (min-width: 992px) {
+    .Main{
+        margin: 70px;
+    }
 }

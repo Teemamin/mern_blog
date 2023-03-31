@@ -5,11 +5,11 @@ import Col from 'react-bootstrap/Col';
 import img from '../assests/images/notfoundimage.svg'
 import classes from '../styles/ErrorHandler.module.css'
 
+
+
 const ErrorPage = ()=> {
   const error = useRouteError();
-  console.error(error);
-  console.log(error.data)
-  console.log(error.status)
+  
 
   return (
     <Container className={classes.container}>
@@ -19,8 +19,8 @@ const ErrorPage = ()=> {
                 <img src={img} alt='not found'  className={classes.img}/>
                 
             </div>
-            <h3 className="text-center">{error.statusText}</h3>
-                <p className="text-center">{error.data && error.data.message}</p>
+            <h3 className="text-center">{error && error.statusText}</h3>
+                <p className={`${classes.error} text-center`}>{error.data && error.data.message}</p>
                 <div className={classes.centerLink}>
                     <Link to='/' className="textCenter">back home</Link>
                 </div>

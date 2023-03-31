@@ -3,16 +3,17 @@ import { useLoaderData,json } from "react-router-dom"
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Post from "../components/Post";
 
 const PostDetail = () => {
   const {post} = useLoaderData()
-  console.log(post)
   return (
     <Row>
-      <Col>
+      <Post post={post}/>
+      {/* <Col>
         <h6>{post.createdAt}</h6>
         <div>
-          <img src={post.imagePath}/>
+          <img src={post.imagePath ? post.imagePath : 'https://res.cloudinary.com/docrd9dcy/image/upload/v1678806487/defauly_blog_pic_b5nndm.jpg'}/>
         </div>
       </Col>
       <Col>
@@ -21,7 +22,7 @@ const PostDetail = () => {
             {post.content}
           </p>
         </div>
-      </Col>
+      </Col> */}
     </Row>
   )
 }

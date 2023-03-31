@@ -17,8 +17,8 @@ const PostSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['draft',  'published'],
-        default: 'draft',
+        enum: ['draft',  'publish'],
+        default: 'publish',
       },
     comments: [{
     type: mongoose.Schema.Types.ObjectId,

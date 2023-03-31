@@ -1,8 +1,10 @@
-import React from 'react'
+import { useAppContext } from '../context/appContext';
+import DOMPurify from 'dompurify';
 
 const Post = ({post}) => {
+
   return (
-    <div>{post.content}</div>
+    <div dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(post.content)}}/>
   )
 }
 

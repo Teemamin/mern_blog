@@ -1,52 +1,65 @@
+import {authFetch } from '../api/axiosDefault';
+import { Suspense } from 'react';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import { useLoaderData,redirect,json } from 'react-router-dom';
-import axios from 'axios'
+import { useLoaderData,json, Await,defer } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import Card from 'react-bootstrap/Card';
 import Button from './Button';
+import classes from '../styles/PostsContainer.module.css'
+import { useAppContext } from '../context/appContext';
+import { useEffect } from 'react';
+import PageBtnContainer from './PageBtnContainer';
+import PostsList from './PostsList';
+
 
 function Posts() {
-  const loaderData = useLoaderData()
-  const  limit =  (string = '', limit = 0)=> {  
-    return string.substring(0, limit)
-  }
+  const {postData} = useLoaderData()
+  const {page,changePage} = useAppContext()
+  // const pageBtn = Array.from({length:numOfPages},(_,index)=>index + 1)
+  const appContext = useAppContext();
+  
+
+ 
+  useEffect(()=>{
+    allPostsLoader(appContext)
+  },[page])
  
   return (
     <Container>
-      <Row>
-        {loaderData.map(post=>(<Col className='col-lg-4 col-md-6 mb-4' key={post._id}>
-        <Card style={{ width: '18rem' }}>
-          <Card.Img variant="top" src={'https://res.cloudinary.com/docrd9dcy/image/upload/v1678806487/defauly_blog_pic_b5nndm.jpg'} />
-          <Card.Body>
-            <Card.Title>{post.title}</Card.Title>
-            <Card.Text>
-               {limit(post.content,100)}....
-            </Card.Text>
-            <h6>createdAt :<small> {post.createdAt}</small></h6>
-            <Link to={post._id}>
-            <Button btnText="See Full Post"/>
-            </Link>
+      <Suspense fallback={<p style={{ textAlign: 'center' }}>Loading...</p>}>
+      <Await resolve={postData}>
+        {(loadedPosts) => (
+            <PostsList posts={loadedPosts.posts} numOfPages={loadedPosts.numOfPages}/>
             
-          </Card.Body>
-        </Card> 
-          </Col>)
         )}
-        
-      </Row>
+      </Await>
+    </Suspense>
     </Container>
   );
 }
 
 export default Posts;
 
-export const allPostsLoader = async ()=>{
-  //get all products
+async function loadPosts(url){
   try {
-    const {data} = await axios.get('/api/posts')
+    const {data} =  await authFetch.get(url)
+    // console.log(data) {posts: Array(4), numOfPages: 3}
     return data
   } catch (error) {
     throw json({message: error.response.data.msg},{status: error.response.status})
   }
+}
+
+
+export const allPostsLoader = (appContext) => async ()=>{
+  const { page} = appContext;
+  const url = `/posts?page=${page}`
+
+
+  return defer({
+    postData: loadPosts(url),
+  });
+  
 }

@@ -55,3 +55,16 @@ exports.updateProfile = async (req,res,next)=>{
     attachCookie({res,token})
     res.status(StatusCodes.OK).json(updatedData)
 }
+
+exports.logout = async (req,res,next)=>{
+    res.cookie('token','logout',
+    { expires: new Date(Date.now()), httpOnly: true}
+    )
+    res.status(StatusCodes.OK).json({msg: 'Logout Successful!'})
+}
+
+exports.getCurrentUser = async (req,res,next)=>{
+    const user = await User.findOne({_id: req.user.userId})
+
+    res.status(StatusCodes.OK).json(user)
+}

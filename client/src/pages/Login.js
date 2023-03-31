@@ -6,7 +6,6 @@ import { useAppContext } from "../context/appContext"
 const Login = () => {
   const {user} = useAppContext()
   const navigate = useNavigate()
-   console.log(user,'form')
     useEffect(()=>{
       if(user){
         navigate('/')

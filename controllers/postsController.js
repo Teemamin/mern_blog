@@ -1,8 +1,10 @@
 const Post = require('../model/post')
+const User = require('../model/user')
 const Comment = require('../model/comment')
 const BadRequestError = require('../errors/badRequest')
 const {StatusCodes} = require('http-status-codes')
 const checkPermissions = require('../util/checkPermissions')
+
 
 
 exports.getAllPosts = async (req,res,next)=>{
@@ -11,12 +13,13 @@ exports.getAllPosts = async (req,res,next)=>{
     const limit = Number(req.query.limit) || 4
     const skip = (page - 1) * limit
     postsQuery= postsQuery.skip(skip).limit(limit)
+     //
     const posts = await postsQuery
     const transformedPosts = []
     for(const post of posts) {
-
+        let user = await User.find({_id: {$in: post.createdBy}})
+        console.log(user)
         if(post.comments.length > 0){
-        //    let commentDocs = await  Comment.find({_id: {$in: post.comments}})
         const numberOfComments = await Comment.aggregate([
             { "$match" : { "_id": { "$in": post.comments } } },
             {
@@ -28,13 +31,13 @@ exports.getAllPosts = async (req,res,next)=>{
            let commentDocs = await commentsQuery
             transformedPosts.push({...post,comments:commentDocs, noOfComments: numberOfComments[0].no_of_comments})
         }else {
-            transformedPosts.push(post)
+            transformedPosts.push({...post,createdBy:user})
         }
     }
     const totalPosts = await Post.countDocuments({});
     const numOfPages = Math.ceil(totalPosts / limit); // can use this to display page btn in the frontend
     
-    res.status(StatusCodes.OK).json(transformedPosts)
+    res.status(StatusCodes.OK).json({posts: transformedPosts, numOfPages})
 }
 
 exports.getPost = async (req,res,next)=>{
@@ -66,8 +69,16 @@ exports.addPost = async (req,res,next)=>{
         throw new BadRequestError('Please provide all values')
     }
     const userId = req.user.userId
-    console.log(req.file)
-    const post = await Post.create({title,content,status,createdBy:userId,imagePath: req.file.path  })
+    const postData = {
+        title,
+        content,
+        status,
+        createdBy:userId,
+    }
+    if(req.file){
+        postData.imagePath = req.file.path 
+    }
+    const post = await Post.create(postData)
 
     res.status(StatusCodes.CREATED).json(post)
 }
